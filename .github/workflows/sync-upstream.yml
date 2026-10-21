@@ -1,0 +1,33 @@
+name: Sync with Upstream
+
+on:
+  schedule:
+    # 每天 UTC 时间 00:00 自动执行（北京时间 08:00）
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 允许在 GitHub Actions 页面手动触发
+
+permissions:
+  contents: write # 授予工作流写入代码的权限
+
+jobs:
+  sync_with_upstream:
+    name: Sync with Upstream
+    runs-on: ubuntu-latest
+    # 仅当当前仓库是 Fork 仓库时才执行此任务
+    if: ${{ github.event.repository.fork }}
+
+    steps:
+      - name: Checkout target repo
+        uses: actions/checkout@v3
+
+      - name: Sync Upstream
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
+        with:
+          target_repo_token: ${{ secrets.GITHUB_TOKEN }}
+          # ⚠️ 请修改为你 Fork 的上游原始仓库路径 (格式: 用户名/仓库名)
+          upstream_sync_repo: Aethersailor/cf-ghproxy-worker
+          # 上游仓库的分支名称
+          upstream_sync_branch: main
+          # 你当前 Fork 仓库需要同步的分支名称
+          target_sync_branch: main
+          test_mode: false
